@@ -9,11 +9,11 @@ return new class extends Migration {
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->string('username')->unique();
+            $table->string('name')->unique();
             $table->string('email')->unique();
             $table->string('password');
-            $table->timestamps();
             $table->enum('role', ['user', 'admin'])->default('user'); // Default role is 'user'
+            $table->timestamps();
         });
  
     }

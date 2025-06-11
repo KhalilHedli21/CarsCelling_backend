@@ -11,7 +11,7 @@ class User extends Authenticatable
 {
     use HasFactory, HasApiTokens;
     
-    protected $fillable = ['username', 'email', 'password'];
+    protected $fillable = ['name', 'email', 'password'];
 
     public function cars() {
         return $this->hasMany(Car::class);

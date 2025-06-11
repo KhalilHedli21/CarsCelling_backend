@@ -20,26 +20,24 @@ class AuthController extends Controller
     public function register(Request $request): JsonResponse
     {
         $data = $request->validate([
-            'username' => 'required|string|unique:users|max:255',
+            'name' => 'required|string|unique:users|max:255',
             'email' => 'required|email|unique:users|max:255',
             'password' => 'required|string|min:6|confirmed',
-            'role' => 'sometimes|in:user' // Restrict role to 'user' only
+            // 'role' => 'sometimes|in:user' 
         ]);
 
         $user = User::create([
-            'username' => $data['username'],
+            'name' => $data['name'],
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
-            'role' => $data['role'] ?? 'user'
+            'role' => 'user'
         ]);
 
         $token = $user->createToken('auth_token')->plainTextToken;
 
-        Log::info('User registered', ['user_id' => $user->id, 'email' => $user->email]);
-
         return response()->json([
             'data' => [
-                'user' => $user->only(['id', 'username', 'email', 'role']),
+                'user' => $user->only(['id', 'name', 'email', 'role']),
                 'token' => $token,
                 'role' => $user->role
             ],
@@ -77,7 +75,7 @@ class AuthController extends Controller
 
         return response()->json([
             'data' => [
-                'user' => $user->only(['id', 'username', 'email', 'role']),
+                'user' => $user->only(['id', 'name', 'email', 'role']),
                 'token' => $token,
                 'role' => $user->role
             ],
@@ -161,4 +159,29 @@ class AuthController extends Controller
             'message' => 'Profile updated successfully'
         ], 200);
     }
+
+    /**
+     * Logout user and revoke token.
+     *
+     * @param Request $request
+     * @return JsonResponse
+    */
+    public function logout(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        if ($user) {
+            // Revoke all tokens for the user
+            $user->tokens()->delete();
+
+            return response()->json([
+                'message' => 'Logged out successfully'
+            ], 200);
+        }
+
+        return response()->json([
+            'error' => 'Unauthorized'
+        ], 401);
+    }
+
 }
