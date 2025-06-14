@@ -1,48 +1,46 @@
 <?php
 
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CarController;
-use App\Http\Controllers\AdminController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\AdminController;
 
-Route::middleware('guest')->group(function () {
-    // Authentification
-    Route::post('/register', [AuthController::class, 'register']);
-    Route::post('/login', [AuthController::class, 'login']);
-});
+// Public routes
+Route::post('/login', [AuthController::class, 'login']);
+Route::post('/register', [AuthController::class, 'register']);
 
-// Public routes for cars (view all cars)
-Route::apiResource('cars', CarController::class)->only(['index', 'show']);
-
+// Protected routes
 Route::middleware('auth:sanctum')->group(function () {
-    // Logout
+    // User routes
+    Route::get('/user', function (Request $request) {
+        return $request->user();
+    });
     Route::post('/logout', [AuthController::class, 'logout']);
+    Route::put('/profile', [AuthController::class, 'updateProfile']);
 
-    // Authenticated user can create, update, and delete their own cars
-    Route::apiResource('cars', CarController::class)->except(['index', 'show']);
+    // Car routes
+    Route::get('/cars', [CarController::class, 'index']);
+    Route::get('/cars/{car}', [CarController::class, 'show']);
 
-    // Routes for orders (authenticated users)
-    Route::apiResource('orders', OrderController::class)->except(['create', 'edit']);
+    // Order routes
+    Route::post('/orders', [OrderController::class, 'store']);
+    Route::get('/orders', [OrderController::class, 'index']);
+    Route::get('/orders/{order}', [OrderController::class, 'show']);
+    Route::put('/orders/{order}', [OrderController::class, 'update']);
 
     // Admin routes
-    Route::middleware('auth:sanctum', 'role:admin')->group(function () {
-        // User Management
-        Route::get('/admin/users', [AdminController::class, 'indexUsers']);
-        Route::post('/admin/users', [AdminController::class, 'storeUser']);
-        Route::put('/admin/users/{user}', [AdminController::class, 'updateUser']);
-        Route::delete('/admin/users/{user}', [AdminController::class, 'destroyUser']);
+    Route::middleware(['auth:sanctum', 'role:admin'])->prefix('admin')->group(function () {
+        // User management routes
+        Route::get('/users', [AdminController::class, 'indexUsers']);
+        Route::post('/users', [AdminController::class, 'storeUser']);
+        Route::put('/users/{user}', [AdminController::class, 'updateUser']);
+        Route::delete('/users/{user}', [AdminController::class, 'destroyUser']);
 
-        // Car Management
-        Route::get('/admin/cars', [AdminController::class, 'indexCars']);
-        Route::post('/admin/cars', [AdminController::class, 'storeCar']);
-        Route::put('/admin/cars/{car}', [AdminController::class, 'updateCar']);
-        Route::delete('/admin/cars/{car}', [AdminController::class, 'destroyCar']);
-
-        // Order Management
-        Route::get('/admin/orders', [AdminController::class, 'indexOrders']);
-        Route::get('/admin/orders/{order}', [AdminController::class, 'showOrder']);
-        Route::put('/admin/orders/{order}', [AdminController::class, 'updateOrder']);
-        Route::delete('/admin/orders/{order}', [AdminController::class, 'destroyOrder']);
+        // Car management routes
+        Route::post('/cars', [CarController::class, 'store']);
+        Route::put('/cars/{car}', [CarController::class, 'update']);
+        Route::delete('/cars/{car}', [CarController::class, 'destroy']);
     });
 });

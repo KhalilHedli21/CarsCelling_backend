@@ -10,7 +10,17 @@ class Order extends Model
     use HasFactory;
 
     protected $fillable = [
-        'user_id', 'car_id', 'status', 'total_price', 'order_date'
+        'user_id',
+        'car_id',
+        'fullname',
+        'email',
+        'phone',
+        'status',
+        'total_price'
+    ];
+
+    protected $casts = [
+        'total_price' => 'decimal:2'
     ];
 
     public function user()

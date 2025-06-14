@@ -12,9 +12,11 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->foreignId('car_id')->constrained()->onDelete('cascade');
-            $table->enum('status', ['pending', 'processing', 'completed', 'cancelled'])->default('pending');
-            $table->decimal('total_price', 15, 2);
-            $table->timestamp('order_date')->useCurrent();
+            $table->string('fullname');
+            $table->string('email');
+            $table->string('phone');
+            $table->enum('status', ['pending', 'confirmed', 'cancelled', 'completed'])->default('pending');
+            $table->decimal('total_price', 10, 2);
             $table->timestamps();
         });
     }
@@ -23,4 +25,4 @@ return new class extends Migration
     {
         Schema::dropIfExists('orders');
     }
-};
+}; 

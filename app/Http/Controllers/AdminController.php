@@ -10,23 +10,11 @@ use Illuminate\Support\Facades\Hash;
 
 class AdminController extends Controller
 {
-    // User Management
-    /**
-     * List all users with pagination.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function indexUsers()
     {
         return User::select('id', 'name', 'email', 'role')->paginate(10);
     }
 
-    /**
-     * Create a new user.
-     *
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function storeUser(Request $request)
     {
         $data = $request->validate([
